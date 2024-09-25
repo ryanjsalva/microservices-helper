@@ -23,7 +23,7 @@ func getSecretPayload(project, secret, version string) (string, error) {
 }
 
 
-// connect to AlloyDB 
+// standard protocol for connecting to AlloyDB 
 func connectToAlloyDB() error {
 
 	// get environment variables
