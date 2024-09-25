@@ -1,7 +1,32 @@
-func connectToAlloyDB() error {
-	// connect to AlloyDB 
-	log.Info("loading catalog from AlloyDB...")
+// get secrets from the vault
+func getSecretPayload(project, secret, version string) (string, error) {
+	ctx := context.Background()
+	client, err := secretmanager.NewClient(ctx)
+	if err != nil {
+		log.Warnf("failed to create SecretManager client: %v", err)
+		return "", err
+	}
+	defer client.Close()
 
+	req := &secretmanagerpb.AccessSecretVersionRequest{
+		Name: fmt.Sprintf("projects/%s/secrets/%s/versions/%s", project, secret, version),
+	}
+
+	// Call the API.
+	result, err := client.AccessSecretVersion(ctx, req)
+	if err != nil {
+		log.Warnf("failed to access SecretVersion: %v", err)
+		return "", err
+	}
+
+	return string(result.Payload.Data), nil
+}
+
+
+// connect to AlloyDB 
+func connectToAlloyDB() error {
+
+	// get environment variables
 	projectID := os.Getenv("PROJECT_ID")
 	region := os.Getenv("REGION")
 	pgClusterName := os.Getenv("ALLOYDB_CLUSTER_NAME")
@@ -10,6 +35,7 @@ func connectToAlloyDB() error {
 	pgTableName := os.Getenv("ALLOYDB_TABLE_NAME")
 	pgSecretName := os.Getenv("ALLOYDB_SECRET_NAME")
 
+	
 	pgPassword, err := getSecretPayload(projectID, pgSecretName, "latest")
 	if err != nil {
 		return err
