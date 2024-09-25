@@ -23,8 +23,9 @@ func getSecretPayload(project, secret, version string) (string, error) {
 }
 
 
-// standard protocol for connecting to AlloyDB 
 func connectToAlloyDB() error {
+
+	// company standard protocol for connecting to AlloyDB 
 
 	// get environment variables
 	projectID := os.Getenv("PROJECT_ID")
